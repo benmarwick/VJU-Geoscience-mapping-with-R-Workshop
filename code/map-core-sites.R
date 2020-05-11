@@ -20,7 +20,6 @@ pkgs <- c(
   "devtools",
   "dplyr",
   "ggmap",
-  "ggrepel",
   "here",
   "leaflet",
   "magick",
@@ -35,6 +34,7 @@ pkgs <- c(
 # install.packages(pkgs)
 
 # devtools::install_github("3wen/legendMap")
+# devtools::install_github("slowkow/ggrepel")
 
 
 
