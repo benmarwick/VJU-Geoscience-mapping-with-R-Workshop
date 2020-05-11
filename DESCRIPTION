@@ -1,0 +1,25 @@
+Package: workshop
+Type: Package
+Title: Geoscience mapping with R
+Version: 0.1.0
+Authors@R: c(person("Ben", "Marwick", role = c("aut", "cre"), email = "benmarwick@gmail.com"))
+Maintainer: Ben Marwick <benmarwick@gmail.com>
+Description: Making geoscience maps reproducibly with R.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports:
+    akima,
+    cowplot,
+    devtools,
+    dplyr,
+    ggmap,
+    ggrepel,
+    here,
+    leaflet,
+    magick,
+    mapview,
+    readxl,
+    reshape2,
+    shadowtext,
+    tidyverse,
+    tmaptool
