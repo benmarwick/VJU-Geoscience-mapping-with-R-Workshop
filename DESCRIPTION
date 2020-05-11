@@ -23,3 +23,5 @@ Imports:
     shadowtext,
     tidyverse,
     tmaptool
+URL: https://github.com/benmarwick/workshop
+BugReports: https://github.com/benmarwick/workshop/issues
