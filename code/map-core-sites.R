@@ -8,7 +8,7 @@
 # 3. A bathymetry contours and raster map
 
 
-#------------ read in the data
+#------------ one time  only install pkgs -----------------------------------------------
 # setting up by installing pkg for the first time
 # we only do this one time for our computer
 # no need to repeat every time we want to
@@ -36,7 +36,22 @@ pkgs <- c(
 
 # devtools::install_github("3wen/legendMap")
 
-#------------ read in the data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------ read in the data  -----------------------------------------------
 
 
 library(tidyverse)
@@ -50,10 +65,38 @@ location_label <-
          y = 15,
          label="Bien Ho Lake")
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------ A country-level map -----------------------------------------------
+
 library(ggmap)
 library(tmaptools)
-
-#------------ A country-level map
 
 # get base map tiles for Vietnam
 base_map_vietnam <-
@@ -65,7 +108,7 @@ library(shadowtext)
 library(legendMap)
 
 base_map_vietnam_and_label <-
-base_map_vietnam +
+  base_map_vietnam +
   geom_point(data = coring_sites,
              aes(x = Longtitude,
                  y = Latitude),
@@ -84,7 +127,18 @@ base_map_vietnam +
 
 base_map_vietnam_and_label
 
-#------------ An aerial photo map of a small area
+
+
+
+
+
+
+
+
+
+
+
+#------------ An aerial photo map of a small area -----------------------------------------------
 
 # zoom into the lake, and interactive map
 
@@ -92,7 +146,7 @@ library(leaflet)
 library(mapview)
 
 m <-
-leaflet() %>%
+  leaflet() %>%
   addProviderTiles('Esri.WorldImagery') %>%
   setView(coring_sites$Longtitude[5],
           coring_sites$Latitude[5],
@@ -107,7 +161,31 @@ image_read(here("figures/lake_view.png")) %>%
   image_crop("500x700+100+100") %>%
   image_write(here("figures/lake_view_cropped.png"))
 
-#------------ A bathymetry contours and raster map
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------ A bathymetry contours and raster map -----------------------------------------------
 
 # close up map of lake and bathymetry
 
@@ -122,16 +200,16 @@ bathymetry_tidy <-
          latitude = `Latitude (oN)`,
          depth = `Depth (m)`) %>%
   dplyr::select(longitude,
-         latitude,
-         depth) %>%
+                latitude,
+                depth) %>%
   drop_na()
 
 # plot the raw measurement data
 ggplot() +
- geom_point(data = bathymetry_tidy,
-            aes(x = longitude,
-                y = latitude,
-                colour = depth))
+  geom_point(data = bathymetry_tidy,
+             aes(x = longitude,
+                 y = latitude,
+                 colour = depth))
 
 # interpolate to make a raster
 library(akima)
@@ -148,7 +226,7 @@ df$Lat <- fld$y[df$y]
 
 # make the bathymetry map
 bathymetry_map <-
-ggplot() +
+  ggplot() +
   geom_tile(data  = df,
             aes(x = Lon,
                 y = Lat,
@@ -178,7 +256,7 @@ bathymetry_map
 # put coring sites on the bathy map
 library(ggrepel)
 bathymetry_map_and_sites <-
-bathymetry_map +
+  bathymetry_map +
   geom_point(data = coring_sites,
              aes(x = Longtitude,
                  y = Latitude),
@@ -199,7 +277,26 @@ bathymetry_map +
                   bg.color = "black",
                   colour = "white")
 
-# --------------- Combine all three maps and save to disk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# --------------- Combine all three maps and save to disk -----------------------------------------------
 
 # combine the maps into one panel
 library(cowplot)
@@ -210,11 +307,11 @@ lake_map <-
              scale = 0.87)
 
 left_side <-
-plot_grid(base_map_vietnam_and_label,
-          lake_map,
-          align = 'v',
-          axis = 'lr',
-          ncol = 1)
+  plot_grid(base_map_vietnam_and_label,
+            lake_map,
+            align = 'v',
+            axis = 'lr',
+            ncol = 1)
 
 plot_grid(left_side,
           bathymetry_map_and_sites,

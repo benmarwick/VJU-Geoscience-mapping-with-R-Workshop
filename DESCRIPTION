@@ -1,6 +1,6 @@
 Package: workshop
 Type: Package
-Title: Geoscience mapping with R
+Title: VNU Geoscience mapping with R Workshop
 Version: 0.1.0
 Authors@R: c(person("Ben", "Marwick", role = c("aut", "cre"), email = "benmarwick@gmail.com"))
 Maintainer: Ben Marwick <benmarwick@gmail.com>
@@ -22,6 +22,6 @@ Imports:
     reshape2,
     shadowtext,
     tidyverse,
-    tmaptool
+    tmaptools
 URL: https://github.com/benmarwick/workshop
 BugReports: https://github.com/benmarwick/workshop/issues
