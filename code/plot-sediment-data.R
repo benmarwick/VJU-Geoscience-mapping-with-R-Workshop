@@ -44,6 +44,26 @@ sed_data_xrf <-
   readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "XRF scanning")
 
+# prepare the data 
+sed_data_litho_phases_tidy <-
+  sed_data_litho_phases %>%
+  mutate(unit_sub_unit = ifelse(is.na(`Sub-Unit`),
+                                `Unit`,
+                                `Sub-Unit`)) %>%
+  drop_na(unit_sub_unit) %>%
+  separate(`Depth (cm)`,
+           into = c("upper_depth",
+                    "lower_depth")) %>%
+  mutate_at(vars(upper_depth,
+                 lower_depth),
+            parse_number) %>%
+  rowwise() %>%
+  mutate(mid_depth = mean(c(upper_depth,
+                            lower_depth))) %>%
+  select(unit_sub_unit,
+         mid_depth,
+         upper_depth,
+         lower_depth)
 
 #------------ explore the data  -----------------------------------------------
 
