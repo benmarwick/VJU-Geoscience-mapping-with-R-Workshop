@@ -239,7 +239,7 @@ bathymetry_map <-
                    z = depth),
                colour = "red",
                size = 0.2) +
-  ggtitle("Bien Ho Lake bathymetrey") +
+  ggtitle("Bien Ho Lake bathymetry") +
   xlab("Longitude") +
   ylab("Latitude") +
   scale_fill_continuous(name = "Depth") +
@@ -254,7 +254,7 @@ bathymetry_map <-
 
 bathymetry_map
 
-# put coring sites on the bathy map
+# put coring sites on the bathymetry map
 library(ggrepel)
 bathymetry_map_and_sites <-
   bathymetry_map +
