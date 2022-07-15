@@ -11,36 +11,37 @@
 library(tidyverse)
 library(tidypaleo)
 library(readxl)
+library(here)
 theme_set(theme_paleo(8))
 
 #------------ read in the data  -----------------------------------------------
 
 
 excel_file <- "data/Data availability - PANGEA_version_3.xlsx"
-excel_file_sheet_names <- excel_sheets(excel_file)
+excel_file_sheet_names <- excel_sheets(here(excel_file))
 
 sed_data_litho_phases <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "Lithology")
 
 sed_data_mag_sus <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "Magnetic susceptibility")
 
 sed_data_grain_size <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "Grain size")
 
 sed_data_loi <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "LOI_organic matter (OM)")
 
 sed_data_pollen <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "Pollen")
 
 sed_data_xrf <-
-  readxl::read_excel("data/Data availability - PANGEA_version_3.xlsx",
+  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
                      sheet = "XRF scanning")
 
 
