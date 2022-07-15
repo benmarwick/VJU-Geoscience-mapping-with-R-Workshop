@@ -2,4 +2,4 @@ libudunits2-dev
 libproj-dev
 libgdal-dev
 libgeos-dev
-libmagic-dev
+libmagick++-dev
