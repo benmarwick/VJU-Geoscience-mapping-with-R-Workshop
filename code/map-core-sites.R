@@ -153,6 +153,7 @@ m <-
           zoom = 14.5)
 
 # save it
+webshot::install_phantomjs()
 mapshot(m, file = here("figures/lake_view.png"))
 
 # crop it and save cropped image
