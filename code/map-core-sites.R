@@ -1,55 +1,9 @@
-# Could you please choose some of the sheets to draw map of coring sites and
-# plot graphs of sediment physical parameters and/or diagrams of microfossils?
 
 # In this script we make three kinds of maps:
 
 # 1. A country-level map to show the general location of a study area
 # 2. An aerial photo map of a small area to show detail of sampling locations
 # 3. A bathymetry contours and raster map
-
-
-#------------ one time  only install pkgs -----------------------------------------------
-# setting up by installing pkg for the first time
-# we only do this one time for our computer
-# no need to repeat every time we want to
-# make the maps
-
-pkgs <- c(
-  "akima",
-  "cowplot",
-  "devtools",
-  "dplyr",
-  "ggmap",
-  "here",
-  "leaflet",
-  "magick",
-  "mapview",
-  "readxl",
-  "reshape2",
-  "shadowtext",
-  "tidyverse",
-  "tmaptools"
-)
-
-# install.packages(pkgs)
-
-# devtools::install_github("3wen/legendMap")
-# devtools::install_github("slowkow/ggrepel")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #------------ read in the data  -----------------------------------------------
 
@@ -226,6 +180,7 @@ df$Lon <- fld$x[df$x]
 df$Lat <- fld$y[df$y]
 
 # make the bathymetry map
+library(mapproj)
 bathymetry_map <-
   ggplot() +
   geom_tile(data  = df,

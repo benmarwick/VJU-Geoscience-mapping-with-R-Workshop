@@ -1,50 +1,89 @@
 
-# First we must install the main pkg that will help us
-# If you have to answer questions: 1 (All) and then 'no'
+# In this script we will visualize several types of geoscience data
 
-# install.packages("remotes")
-# remotes::install_github("paleolimbot/tidypaleo")
+# 1. Grain size, LOI and mag sus data
+# 2. Pollen data
+# 3. Geochemical data
+
 
 #------------ load packages  -----------------------------------------------
-
 
 library(tidyverse)
 library(tidypaleo)
 library(readxl)
 library(here)
+library(patchwork)
 theme_set(theme_paleo(8))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #------------ read in the data  -----------------------------------------------
 
 
-excel_file <- "data/Data availability - PANGEA_version_3.xlsx"
-excel_file_sheet_names <- excel_sheets(here(excel_file))
+excel_file <- here("data/Data availability - PANGEA_version_3.xlsx")
+excel_file_sheet_names <- excel_sheets(excel_file)
 
 sed_data_litho_phases <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "Lithology")
 
 sed_data_mag_sus <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "Magnetic susceptibility")
 
 sed_data_grain_size <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "Grain size")
 
 sed_data_loi <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "LOI_organic matter (OM)")
 
 sed_data_pollen <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "Pollen")
 
 sed_data_xrf <-
-  readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"),
+  readxl::read_excel(excel_file,
                      sheet = "XRF scanning")
 
-# prepare the data 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# prepare the data ------------------------------------------------------
+
 sed_data_litho_phases_tidy <-
   sed_data_litho_phases %>%
   mutate(unit_sub_unit = ifelse(is.na(`Sub-Unit`),
@@ -54,9 +93,9 @@ sed_data_litho_phases_tidy <-
   separate(`Depth (cm)`,
            into = c("upper_depth",
                     "lower_depth")) %>%
-  mutate_at(vars(upper_depth,
+  mutate(across(c(upper_depth,
                  lower_depth),
-            parse_number) %>%
+            parse_number)) %>%
   rowwise() %>%
   mutate(mid_depth = mean(c(upper_depth,
                             lower_depth))) %>%
@@ -65,7 +104,226 @@ sed_data_litho_phases_tidy <-
          upper_depth,
          lower_depth)
 
-#------------ explore the data  -----------------------------------------------
+# prepare a plot for phase labels
+litho_phase_labels <-
+  ggplot() +
+  geom_text(data = sed_data_litho_phases_tidy,
+            aes(x = 0,
+                y = mid_depth,
+                label = unit_sub_unit)) +
+  xlim(0, 0) +
+  scale_y_reverse() +
+  theme_void() +
+  NULL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------ explore the grain size data  ----------------
+
+sed_data_long <-
+sed_data_grain_size %>%
+select(`Reference depth (cm)`,
+       `% Sand`,
+       `% Silt`,
+       `% Clay`) %>%
+  pivot_longer(-`Reference depth (cm)`) %>%
+  mutate(name = fct_inorder(name))
+
+sed_data_plot <-
+ggplot(sed_data_long) +
+  aes(x = value,
+      y = `Reference depth (cm)`) +
+  geom_hline(yintercept = sed_data_litho_phases_tidy$upper_depth,
+             colour = "grey80") +
+  geom_lineh() +
+  geom_point() +
+  scale_y_reverse() +
+  facet_abundanceh(vars(name)) +
+  labs(x = NULL, y = "Depth (cm)")
+
+sed_data_plot +
+  litho_phase_labels +
+  plot_layout(widths  = c(1, 0.05))
+
+#------------ explore the LOI and mag sus data  ----------------
+
+geo_data <-
+  full_join(sed_data_loi,
+            sed_data_mag_sus,
+            by = "Reference depth (cm)") %>%
+  select(`Reference depth (cm)`,
+         `LOI 550 (%)` = `LOI\r\n550 (%)`,
+         `Magnetic Susceptibility (SI, *e^-5)`) %>%
+  pivot_longer(-`Reference depth (cm)`)
+
+geo_data_plot <-
+ggplot(geo_data) +
+  aes(x = value, y = `Reference depth (cm)`) +
+  geom_hline(yintercept = sed_data_litho_phases_tidy$upper_depth,
+             colour = "grey80") +
+  geom_lineh() +
+  geom_point() +
+  scale_y_reverse() +
+  facet_geochem_gridh(vars(name)) +
+  labs(x = NULL, y = "Depth (cm)")
+
+geo_data_plot +
+  litho_phase_labels +
+  plot_layout(widths  = c(1, 0.05))
+
+
+#------------ pollen data  -----------------------------------------------
+
+sed_data_pollen_long <-
+  sed_data_pollen %>%
+  select(`Depth (cm)`,
+         `Fern (%)`,
+         `Rice (Gramineae) (%)`,
+         `Rice (Gramineae) (%)`,
+         `Coffea Robusta (%)`,
+         `Pinus (%)`,
+         `Fagaceae (%)`,
+         `Moraceae (%)`) %>%
+  pivot_longer(-`Depth (cm)`,
+               names_to = "variable",
+               values_to = "value")
+
+# compute CONISS
+coniss <-
+sed_data_pollen_long %>%
+  drop_na() %>%
+  nested_data(qualifiers = `Depth (cm)`,
+              key = variable,
+              value = value) %>%
+  nested_chclust_coniss()
+
+sed_data_pollen_long_plot <-
+  ggplot(sed_data_pollen_long,
+         aes(x = value,
+             y = `Depth (cm)`)) +
+  geom_areah() +
+  scale_y_reverse() +
+  facet_abundanceh(vars(variable)) +
+  labs(x = "Relative abundance (%)", y = "Depth (cm)")
+
+coniss_plot <- ggplot() +
+  layer_dendrogram(coniss, aes(y = `Depth (cm)`)) +
+  scale_y_reverse() +
+  facet_geochem_gridh(vars("CONISS")) +
+  labs(x = NULL) +
+  theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
+  labs(y = NULL)
+
+# combine plots
+sed_data_pollen_long_plot +
+  coniss_plot +
+  plot_layout(widths  = c(1, 0.25))
+
+#------------ plot geomchem data  -----------------------------------------------
+
+sed_data_xrf_long <-
+  sed_data_xrf %>%
+  mutate(
+    `log (Si/Ti)` = log(Si / Ti),
+    `log (Zr/Ti)` = log(Zr / Ti),
+    `log (Rb/Zr)` = log(Rb / Zr),
+    `log (S)` = log(S),
+    `log (Fe)` = log(Fe),
+    `Reference depth (cm)` = `Reference\r\ndepth (cm)`
+  ) %>%
+  select(
+    `Reference depth (cm)`,
+    `log (Si/Ti)`,
+    `log (Zr/Ti)`,
+    `log (Rb/Zr)`,
+    `log (S)`,
+    `log (Fe)`
+  ) %>%
+  pivot_longer(-`Reference depth (cm)`,
+               names_to = "variable",
+               values_to = "values")
+
+
+# basic geochem plot
+sed_data_xrf_long_plot <-
+  ggplot(sed_data_xrf_long,
+         aes(x = values,
+             y = `Reference depth (cm)`)) +
+  geom_lineh() +
+  scale_y_reverse() +
+  facet_geochem_gridh(vars(variable)) +
+  labs(y = NULL)
+
+# add litho phases on to the plot
+
+sed_data_xrf_long_plot_lines <-
+  sed_data_xrf_long_plot +
+  geom_hline(yintercept = sed_data_litho_phases_tidy$upper_depth,
+             colour = "grey80")
+
+# combine plots
+ sed_data_xrf_long_plot_lines +
+   litho_phase_labels +
+   plot_layout(widths  = c(1, 0.05))
+
+# -- END -----------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ #------------ other stuff  -----------------------------------------------
 
 # Mean grain size
 
@@ -123,31 +381,6 @@ sed_data_mag_sus_plot_with_phases +
   ylab(bquote('Magnetic Susceptibility (SI'~x10^-5*')')) +
   xlab("Reference Depth (cm)")
 
-#------------ pollen data  -----------------------------------------------
-
-sed_data_pollen_long <-
-  sed_data_pollen %>%
-  select(`Depth (cm)`,
-         `Fern (%)`,
-        `Rice (Gramineae) (%)`,
-        `Rice (Gramineae) (%)`,
-        `Coffea Robusta (%)`,
-        `Pinus (%)`,
-        `Fagaceae (%)`,
-        `Moraceae (%)`) %>%
-  pivot_longer(-`Depth (cm)`,
-               names_to = "variable",
-               values_to = "value")
-
-sed_data_pollen_long_plot <-
-ggplot(sed_data_pollen_long,
-       aes(x = value,
-           y = `Depth (cm)`)) +
-  geom_areah() +
-  scale_y_reverse() +
-  facet_abundanceh(vars(variable)) +
-  labs(x = "Relative abundance (%)", y = "Depth (cm)")
-
 sed_data_pollen_long_other <-
   sed_data_pollen %>%
   select(`Depth (cm)`,
@@ -169,89 +402,6 @@ sed_data_pollen_long_other_plot <-
   scale_y_reverse() +
   facet_geochem_gridh(vars(variable)) +
   labs(x = NULL, y = NULL)
-
-
-# combine plots
-library(patchwork)
-sed_data_pollen_long_plot + sed_data_pollen_long_other_plot
-
-
-#------------ plot geomchem data  -----------------------------------------------
-
-sed_data_xrf_long <-
-  sed_data_xrf %>%
-  mutate(
-    `log (Si/Ti)` = log(Si / Ti),
-    `log (Zr/Ti)` = log(Zr / Ti),
-    `log (Rb/Zr)` = log(Rb / Zr),
-    `log (S)` = log(S),
-    `log (Fe)` = log(Fe),
-    `Reference depth (cm)` = `Reference\r\ndepth (cm)`
-  ) %>%
-  select(
-    `Reference depth (cm)`,
-    `log (Si/Ti)`,
-      `log (Zr/Ti)`,
-      `log (Rb/Zr)`,
-      `log (S)`,
-      `log (Fe)`
-    ) %>%
-  pivot_longer(-`Reference depth (cm)`,
-              names_to = "variable",
-              values_to = "values")
-
-
-# basic geochem plot
-sed_data_xrf_long_plot <-
-ggplot(sed_data_xrf_long,
-       aes(y = values,
-           x = `Reference depth (cm)`)) +
-  geom_line() +
-  scale_y_reverse() +
-  facet_grid(vars(variable),
-             scales = "free_y") +
-  labs(y = NULL)
-
-# add litho phases on to the plot
-
-sed_data_litho_phases_tidy <-
-  sed_data_litho_phases %>%
-  mutate(unit_sub_unit = ifelse(is.na(`Sub-Unit`),
-                                `Unit`,
-                                `Sub-Unit`)) %>%
-  drop_na(unit_sub_unit) %>%
-  separate(`Depth (cm)`,
-           into = c("upper_depth",
-                    "lower_depth")) %>%
-  mutate_at(vars(upper_depth,
-                 lower_depth),
-            parse_number) %>%
-  rowwise() %>%
-  mutate(mid_depth = mean(c(upper_depth,
-                            lower_depth))) %>%
-  select(unit_sub_unit,
-         mid_depth,
-         upper_depth,
-         lower_depth)
-
-sed_data_xrf_long_plot_lines <-
-sed_data_xrf_long_plot +
-  geom_vline(xintercept = sed_data_litho_phases_tidy$upper_depth,
-             colour = "grey80") +
-  xlim(0, 180)
-
-litho_phase_labels <-
-ggplot() +
-  geom_text(data = sed_data_litho_phases_tidy,
-            aes(x = mid_depth,
-                y = 0,
-                label = unit_sub_unit)) +
-  xlim(0, 180) +
- theme_void() +
-  NULL
-
-library(patchwork)
-litho_phase_labels / sed_data_xrf_long_plot_lines + plot_layout(heights = c(0.05, 1))
 
 
 
