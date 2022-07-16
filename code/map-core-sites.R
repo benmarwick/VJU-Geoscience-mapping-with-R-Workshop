@@ -10,6 +10,17 @@
 
 library(tidyverse)
 library(here)
+library(ggmap)
+library(tmaptools)
+library(shadowtext)
+library(legendMap)
+library(leaflet)
+library(mapview)
+library(magick)
+library(akima)
+library(mapproj)
+library(ggrepel)
+webshot::install_phantomjs()
 
 coring_sites <-
   readxl::read_excel(here("data/Data availability - PANGEA_version_3.xlsx"))
@@ -49,17 +60,12 @@ location_label <-
 
 #------------ A country-level map -----------------------------------------------
 
-library(ggmap)
-library(tmaptools)
-
 # get base map tiles for Vietnam
 base_map_vietnam <-
   ggmap(get_stamenmap(rbind(as.numeric(paste(geocode_OSM("vietnam")$bbox))),
                       zoom = 7))
 
 # add layer of our core site locations
-library(shadowtext)
-library(legendMap)
 
 base_map_vietnam_and_label <-
   base_map_vietnam +
@@ -96,9 +102,6 @@ base_map_vietnam_and_label
 
 # zoom into the lake, and interactive map
 
-library(leaflet)
-library(mapview)
-
 m <-
   leaflet() %>%
   addProviderTiles('Esri.WorldImagery') %>%
@@ -107,14 +110,16 @@ m <-
           zoom = 14.5)
 
 # save it
-webshot::install_phantomjs()
+
 mapshot(m, file = here("figures/lake_view.png"))
 
 # crop it and save cropped image
-library(magick)
+
 image_read(here("figures/lake_view.png")) %>%
   image_crop("500x700+100+100") %>%
   image_write(here("figures/lake_view_cropped.png"))
+
+# take a look in the 'figure's folder to see the result
 
 
 
@@ -167,7 +172,7 @@ ggplot() +
                  colour = depth))
 
 # interpolate to make a raster
-library(akima)
+
 fld <- interp(x = bathymetry_tidy$longitude,
               y = bathymetry_tidy$latitude,
               z = bathymetry_tidy$depth,
@@ -180,7 +185,7 @@ df$Lon <- fld$x[df$x]
 df$Lat <- fld$y[df$y]
 
 # make the bathymetry map
-library(mapproj)
+
 bathymetry_map <-
   ggplot() +
   geom_tile(data  = df,
@@ -210,7 +215,7 @@ bathymetry_map <-
 bathymetry_map
 
 # put coring sites on the bathymetry map
-library(ggrepel)
+
 bathymetry_map_and_sites <-
   bathymetry_map +
   geom_point(data = coring_sites,
@@ -277,6 +282,8 @@ plot_grid(left_side,
 ggsave(here("figures/base_map_vietnam_lake_map_bathymetry_panel.png"),
        height = 10,
        width = 14)
+
+# take a look in the 'figure's folder to see the result
 
 
 
