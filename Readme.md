@@ -2,7 +2,7 @@
 
 In this workshop we will use R to visualise and analyse some of the geological data collected from Biển Hồ lake. The data are available from this publication: 
 
-Nguyễn-Văn, H., Schimmelmann, J. P., Nguyễn-Thùy, D., Ojala, A. E., Unkel, I., Nguyễn-Đình, T., ... & Schimmelmann, A. (2020). Environmental history recorded over the last 70 years in Biển Hồ maar sediment, Central Highlands of Vietnam. _Quaternary International_ Volume 621, Pages 84-100
+Nguyễn-Văn, H., Schimmelmann, J. P., Nguyễn-Thùy, D., Ojala, A. E., Unkel, I., Nguyễn-Đình, T., ... & Schimmelmann, A. (2020). Environmental history recorded over the last 70 years in Biển Hồ maar sediment, Central Highlands of Vietnam. _Quaternary International_ Volume 621, Pages 84-100. https://doi.org/10.1016/j.quaint.2020.05.013
 
 ## Schedule
 
