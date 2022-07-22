@@ -3,3 +3,4 @@ libproj-dev
 libgdal-dev
 libgeos-dev
 libmagick++-dev
+libgit2-dev
